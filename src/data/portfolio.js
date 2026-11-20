@@ -10,6 +10,7 @@ export const portfolio = {
   role: 'Aspiring software developer',
   education: 'Computer Science undergraduate',
   institution: 'SLIIT',
+  portraitUrl: '/chamath-portrait.png',
   about: 'I’m interested in what happens beyond the interface: how systems communicate, how data moves, and how software holds up when things go wrong. My projects span full-stack applications, AI-assisted developer tooling, distributed systems, and embedded IoT systems.',
   internship: 'I’m looking for a software development internship where I can contribute to real projects, learn from experienced engineers, and grow through feedback and hands-on work.',
   cvUrl: '', // Example: '/your-name-cv.pdf'

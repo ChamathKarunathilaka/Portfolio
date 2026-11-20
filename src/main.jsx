@@ -5,6 +5,49 @@ import { portfolio as p } from './data/portfolio';
 import './styles.css';
 
 const icons = [Code2, Layers, Terminal, Database, Wrench];
+function CodePortrait({ src, name }) {
+  const frame = useRef(null);
+  const [loaded, setLoaded] = useState(false);
+  const [active, setActive] = useState(false);
+  const [replay, setReplay] = useState(0);
+  useEffect(() => {
+    if (!loaded) return;
+    const observer = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        setActive(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.45 });
+    observer.observe(frame.current);
+    return () => observer.disconnect();
+  }, [loaded]);
+  const lines = [
+    'const developer = {',
+    `  name: "${name.split(' ')[0]}",`,
+    '  curiosity: Infinity,',
+    '  passion: "building",',
+    '  learn() {',
+    '    return this.create();',
+    '  }',
+    '};',
+    '',
+    'async function create() {',
+    '  const idea = await learn();',
+    '  return build(idea);',
+    '}',
+    '',
+    'render(developer);',
+  ];
+  return <figure ref={frame} className="about-portrait code-portrait">
+    <div className="portrait-toolbar" aria-hidden="true"><span><i/><i/><i/></span><span>the person behind the code</span><Code2 size={13}/></div>
+    <div key={replay} className={`portrait-stage ${active ? 'portrait-playing' : ''}`}>
+      <img src={src} alt={`Portrait of ${name}`} onLoad={() => setLoaded(true)} />
+      <div className="portrait-code" aria-hidden="true">{lines.map((line, i) => <div key={i} style={{ '--line': i }}><span>{String(i + 1).padStart(2, '0')}</span><code>{line || ' '}</code></div>)}</div>
+      <span className="portrait-scan" aria-hidden="true"/>
+    </div>
+    <button className="portrait-replay" onClick={() => setReplay(value => value + 1)} disabled={!loaded}><Code2 size={14}/> Replay reveal <ArrowRight size={13}/></button>
+  </figure>;
+}
 function containDialogFocus(event) {
   if (event.key !== 'Tab') return;
   const controls = [...event.currentTarget.querySelectorAll('button:not([disabled]), a[href], [tabindex="0"]')];
@@ -53,7 +96,7 @@ function App() {
       <div className="hero-art" aria-hidden="true" />
       <div className="hero-bottom"><span><span className="tiny-square"/> {p.education} <b>·</b> {p.institution}</span><a href="#projects">SCROLL TO EXPLORE <ArrowDown size={13}/></a></div></section>
       <section className="projects-section" id="projects"><div className="shell"><div className="section-top"><div><p className="eyebrow"><span>01 /</span> SELECTED WORK</p><h2>Ideas turned into<br/><span className="serif">working software.</span></h2></div><p>A few things I’ve worked on.<br/>Different challenges. The same curiosity.</p></div><div className="project-grid">{p.projects.map((project,index)=><button className="project-card group reveal" key={project.id} onClick={e=>{projectTrigger.current=e.currentTarget;setSelected(project);}} aria-label={`View ${project.name} project details`}><ProjectVisual project={project}/><div className="project-content"><div className="project-meta"><span>{String(index+1).padStart(2,'0')} / {project.category}</span><ArrowUpRight className="project-arrow" size={24}/></div><h3>{project.name}</h3><p>{project.description}</p><div className="chips">{project.technologies.slice(0,3).map(tech=><span key={tech}>{tech}</span>)}{project.technologies.length>3 && <span>+{project.technologies.length-3}</span>}</div></div></button>)}</div></div></section>
-      <section className="about-section shell" id="about"><div><p className="eyebrow"><span>02 /</span> THE PERSON BEHIND THE CODE</p><h2>A curious mind.<br/>A <span className="serif">builder’s instinct.</span></h2><div className="education-card"><div className="education-icon"><Code2 size={27}/></div><div><strong>{p.institution}</strong><span>{p.education}</span></div><ArrowUpRight size={20}/></div></div><div className="about-copy"><p>{p.about}</p><div className="looking-for"><span className="tiny-square"/><div><h3>My next chapter</h3><p>{p.internship}</p></div></div><a className="text-link" href="#contact">Let’s build something together <ArrowUpRight size={18}/></a></div></section>
+      <section className="about-section shell" id="about"><div><p className="eyebrow"><span>02 /</span> THE PERSON BEHIND THE CODE</p><h2>A curious mind.<br/>A <span className="serif">builder’s instinct.</span></h2>{p.portraitUrl && <CodePortrait src={p.portraitUrl} name={p.name} />}<div className="education-card"><div className="education-icon"><Code2 size={27}/></div><div><strong>{p.institution}</strong><span>{p.education}</span></div><ArrowUpRight size={20}/></div></div><div className="about-copy"><p>{p.about}</p><div className="looking-for"><span className="tiny-square"/><div><h3>My next chapter</h3><p>{p.internship}</p></div></div><a className="text-link" href="#contact">Let’s build something together <ArrowUpRight size={18}/></a></div></section>
       <section className="skills-section shell" id="skills"><div className="section-top"><div><p className="eyebrow"><span>03 /</span> MY TOOLKIT</p><h2>The tools behind <span className="serif">the ideas.</span></h2></div><p>Always learning. Always adding.</p></div><div className="skill-grid">{p.skills.map((skill,i)=>{const Icon=icons[i%icons.length];return <div className="skill-group reveal" key={skill.name}><Icon size={22} strokeWidth={1.5}/><h3>{skill.name}</h3><ul>{skill.items.map(item=><li key={item}>{item}</li>)}</ul></div>;})}</div><p className="skills-note">A growing toolkit, shaped by the projects I build.</p></section>
       <section className="contact-section" id="contact"><div className="shell contact-inner"><div><p className="eyebrow"><span>04 /</span> LET’S CONNECT</p><h2>Good things start<br/>with a <span className="serif">hello.</span><span className="contact-star" aria-hidden="true">✳</span></h2><p>Have an internship opportunity or a project in mind?<br/>I’d love to hear from you.</p>{p.email ? <a className="button lime" href={`mailto:${p.email}`}>Let’s start a conversation <ArrowUpRight size={19}/></a> : <button className="button lime" onClick={()=>missing('Email')}>Let’s start a conversation <ArrowUpRight size={19}/></button>}</div><div className="contact-links">{contactLink(p.email ? `mailto:${p.email}` : '', p.email || 'Email', Mail)}{contactLink(p.github, 'GitHub', Github)}{contactLink(p.linkedin, 'LinkedIn', Linkedin)}<span className="contact-status"><span/> {p.status}</span></div></div><footer className="shell"><a href="#" className="footer-brand">{p.initials}<span aria-hidden="true">.</span></a><a href="#">Back to top ↑</a></footer></section>
     </main>
